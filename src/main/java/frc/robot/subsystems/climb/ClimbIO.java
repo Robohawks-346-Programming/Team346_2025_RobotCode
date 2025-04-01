@@ -24,4 +24,7 @@ public interface ClimbIO {
 
 	public default void stop() {
 	}
+
+	public default void funnelUp() {
+	}
 }

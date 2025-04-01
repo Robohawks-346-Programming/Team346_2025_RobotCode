@@ -24,8 +24,9 @@ public class ElevatorConstants {
 	public static final double ALGAE_LOW = 20;
 	public static final double ALGAE_HIGH = 28;
 
-	public static final double ELEVATOR_GEAR_RATIO = 12.375;
+	public static final double ELEVATOR_GEAR_RATIO = (12.375 / 9) * 5;
 
 	public static final double ELEVATOR_SPOOL_DIAMETER = 1.5;
+	public static final int CAN_ENCODER_ID = 0;
 
 }

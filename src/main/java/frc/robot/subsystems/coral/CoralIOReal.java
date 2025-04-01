@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.coral;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,17 +14,17 @@ import edu.wpi.first.wpilibj.Timer;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-public class IntakeIOReal implements IntakeIO {
+public class CoralIOReal implements CoralIO {
 	private final SparkMax coralMotor;
 	private final SparkMaxConfig config;
 
 	private static DigitalInput laserBreak;
 
-	public IntakeIOReal() {
-		coralMotor = new SparkMax(IntakeConstants.CORAL_MOTOR_ID, MotorType.kBrushless);
+	public CoralIOReal() {
+		coralMotor = new SparkMax(CoralConstants.CORAL_MOTOR_ID, MotorType.kBrushless);
 		config = new SparkMaxConfig();
 
-		laserBreak = new DigitalInput(IntakeConstants.CORAL_LASER_BREAK_PORT);
+		laserBreak = new DigitalInput(CoralConstants.CORAL_LASER_BREAK_PORT);
 
 		config.smartCurrentLimit(30);
 		config.idleMode(IdleMode.kBrake);
@@ -32,7 +32,7 @@ public class IntakeIOReal implements IntakeIO {
 	}
 
 	@Override
-	public void updateInputs(IntakeIOInputs inputs) {
+	public void updateInputs(CoralIOInputs inputs) {
 		inputs.coralMotorSpeed = coralMotor.get();
 
 		inputs.coralSensed = !laserBreak.get();

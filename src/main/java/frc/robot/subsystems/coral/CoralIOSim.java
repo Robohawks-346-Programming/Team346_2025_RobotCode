@@ -1,22 +1,22 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.coral;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.coral.CoralConstants;
 
-public class IntakeIOSim implements IntakeIO {
+public class CoralIOSim implements CoralIO {
 	private double coralMotorSpeed;
 
-	public IntakeIOSim() {
+	public CoralIOSim() {
 		coralMotorSpeed = 0.0;
 
 		SmartDashboard.putBoolean("Coral In", false);
 	}
 
 	@Override
-	public void updateInputs(IntakeIOInputs inputs) {
+	public void updateInputs(CoralIOInputs inputs) {
 		inputs.coralMotorSpeed = coralMotorSpeed;
 
 		inputs.coralSensed = SmartDashboard.getBoolean("Coral In", false);

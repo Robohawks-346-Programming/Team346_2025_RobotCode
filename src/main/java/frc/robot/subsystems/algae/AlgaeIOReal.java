@@ -7,6 +7,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
@@ -19,6 +21,7 @@ public class AlgaeIOReal implements AlgaeIO {
 	private TalonFXConfiguration pivotMotorConfig;
 	private MotionMagicExpoVoltage motionMagicVoltage;
 	private MotionMagicConfigs motionMagicConfigs;
+	private SparkFlex algaeMotor;
 
 	public AlgaeIOReal() {
 		pivotMotor = new TalonFX(AlgaeConstants.PIVOT_MOTOR_ID);
@@ -52,15 +55,34 @@ public class AlgaeIOReal implements AlgaeIO {
 		pivotMotor.setPosition(Units.degreesToRotations(AlgaeConstants.PIVOT_HOME_POSITION));
 
 		targetPositionInRotations = 0.0;
+
+		algaeMotor = new SparkFlex(AlgaeConstants.ALGAE_MOTOR_ID, MotorType.kBrushless);
 	}
 
 	@Override
 	public void updateInputs(AlgaeIOInputs inputs) {
 		inputs.position = Units.rotationsToDegrees(pivotMotor.getPosition().getValueAsDouble());
+		inputs.intakeCurrent = algaeMotor.getOutputCurrent();
 	}
 
 	@Override
 	public void setPivotPosition(double wantedPosition) {
 		pivotMotor.setControl(motionMagicVoltage.withPosition(Units.degreesToRotations(wantedPosition)));
 	}
+
+	@Override
+	public void intake() {
+		algaeMotor.setVoltage(2);
+	}
+
+	@Override
+	public void eject() {
+		algaeMotor.setVoltage(-2);
+	}
+
+	@Override
+	public void stop() {
+		algaeMotor.stopMotor();
+	}
+
 }

@@ -1,8 +1,9 @@
 package frc.robot.subsystems.climb;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.pivot.PivotIO.PivotIOInputs;
+import frc.robot.subsystems.algae.AlgaeConstants;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -17,6 +18,8 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 	private TalonFXConfiguration climbMotorConfig;
 	private MotionMagicExpoVoltage motionMagicVoltage;
 	private MotionMagicConfigs motionMagicConfigs;
+	private final Servo rightServo;
+	private final Servo leftServo;
 
 	public ClimbIOReal() {
 		climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_ID);
@@ -31,6 +34,8 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 		climbMotorConfig.Slot0.kV = ClimbConstants.CLIMB_kV;
 		climbMotorConfig.Slot0.kS = ClimbConstants.CLIMB_kS;
 
+		climbMotorConfig.Feedback.SensorToMechanismRatio = ClimbConstants.CLIMB_GEAR_RATIO;
+
 		motionMagicVoltage = new MotionMagicExpoVoltage(0);
 		motionMagicVoltage.EnableFOC = true;
 
@@ -43,6 +48,10 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 		climbMotor.setPosition(ClimbConstants.CLIMB_HOME_POSITION);
 
 		targetPositionInRotations = 0.0;
+
+		rightServo = new Servo(ClimbConstants.SERVO_RIGHT);
+		leftServo = new Servo(ClimbConstants.SERVO_RIGHT);
+
 	}
 
 	@Override
@@ -70,5 +79,11 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 	public void runManualDown() {
 		climbMotor.set(-0.8);
 
+	}
+
+	@Override
+	public void funnelUp() {
+		leftServo.set(45); // WPILib docs said 180 is a full rotation
+		rightServo.set(-45);
 	}
 }

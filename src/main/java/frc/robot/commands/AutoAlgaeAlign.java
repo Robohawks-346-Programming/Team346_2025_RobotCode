@@ -1,11 +1,13 @@
 package frc.robot.commands;
 
+import frc.robot.subsystems.algae.Algae;
+import frc.robot.subsystems.algae.Algae.AlgaeState;
+import frc.robot.subsystems.coral.Coral;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.elevator.*;
-import frc.robot.subsystems.pivot.Pivot;
-import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.vision.*;
 
 import java.util.ArrayList;
@@ -21,8 +23,6 @@ public class AutoAlgaeAlign extends Command {
 
 	private final Drive m_drivetrain;
 	private final Elevator m_elevator;
-	private final Pivot m_pivot;
-	private final Intake m_intake;
 
 	private boolean highAlgae = false;
 	private boolean lowAlgae = false;
@@ -33,15 +33,11 @@ public class AutoAlgaeAlign extends Command {
 	private static final int[] HIGH_ALGAE_IDS = { 18, 20, 22, 7, 9, 11 };
 	private static final int[] LOW_ALGAE_IDS = { 19, 17, 21, 8, 6, 10 };
 
-	private double delayTime = 0.5;
-
-	public AutoAlgaeAlign(Drive drivetrain, Elevator elevator, Pivot pivot, Intake intake, Transform2d shift) {
+	public AutoAlgaeAlign(Drive drivetrain, Elevator elevator, Transform2d shift) {
 		m_drivetrain = drivetrain;
 		m_elevator = elevator;
-		m_pivot = pivot;
-		m_intake = intake;
 		m_shift = shift;
-		addRequirements(drivetrain, elevator, pivot, intake);
+		addRequirements(drivetrain, elevator);
 	}
 
 	@Override
@@ -79,6 +75,8 @@ public class AutoAlgaeAlign extends Command {
 		Logger.recordOutput("Drivetrain/DriveToPose/HighAlgae", highAlgae);
 		Logger.recordOutput("Drivetrain/DriveToPose/LowAlgae", lowAlgae);
 
+		new WaitCommand(1);
+
 	}
 
 	@Override
@@ -91,42 +89,17 @@ public class AutoAlgaeAlign extends Command {
 			m_elevator.setStateNonCommand(ElevatorState.LEVEL_2_POSITION);
 		}
 
-		m_intake.setState(Intake.IntakeState.INTAKE_ALGAE);
-
 	}
 
 	@Override
 	public void end(boolean interrupted) {
-		m_intake.setState(Intake.IntakeState.IDLE);
+		m_elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION);
 		highAlgae = false;
 		lowAlgae = false;
 	}
 
 	@Override
 	public boolean isFinished() {
-		if (highAlgae || lowAlgae) {
-
-			m_intake.intakeUntilAlgaeDetected(delayTime);
-			return m_intake.isAlgaeDetected();
-		}
-		return false;
+		return m_elevator.getTargetPose() == m_elevator.getTargetPose();
 	}
-
-	// private boolean isHighAlgaeTag(int tagID) {
-	// for (int id : HIGH_ALGAE_IDS) {
-	// if (tagID == id) {
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
-
-	// private boolean isLowAlgaeTag(int tagID) {
-	// for (int id : LOW_ALGAE_IDS) {
-	// if (tagID == id) {
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
 }

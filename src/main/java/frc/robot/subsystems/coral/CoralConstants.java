@@ -1,6 +1,6 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.coral;
 
-public class IntakeConstants {
+public class CoralConstants {
 	public static final int CORAL_LASER_BREAK_PORT = 0;
 
 	public static final int CORAL_MOTOR_ID = 42;

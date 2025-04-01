@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.coral;
 
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.coral.CoralIOInputsAutoLogged;
 
-public class Intake extends SubsystemBase {
-	private IntakeIO io;
-	private IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-	private IntakeState state = IntakeState.IDLE;
+public class Coral extends SubsystemBase {
+	private CoralIO io;
+	private CoralIOInputsAutoLogged inputs = new CoralIOInputsAutoLogged();
+	private CoralState state = CoralState.INTAKE_CORAL;
 	private Elevator m_Elevator;
 	private boolean algaeDetected = false;
 	private double currentThreshold = 5.0;
@@ -20,7 +21,7 @@ public class Intake extends SubsystemBase {
 	private Timer intakeTimer = new Timer();
 	private boolean wasIntaking = false;
 
-	public Intake(IntakeIO io, Elevator elevator) {
+	public Coral(CoralIO io, Elevator elevator) {
 		this.io = io;
 		m_Elevator = elevator;
 	}
@@ -33,27 +34,6 @@ public class Intake extends SubsystemBase {
 		SmartDashboard.putBoolean("Intake", inputs.coralSensed);
 
 		switch (state) {
-			case IDLE:
-				io.setSpeeds(0.0);
-				break;
-			case INTAKE_ALGAE:
-				io.setSpeeds(-0.5);
-
-				if (!intakeTimer.isRunning() && inputs.coralMotorSpeed > 0 && !wasIntaking) {
-					intakeTimer.reset();
-					intakeTimer.start();
-					wasIntaking = true;
-				}
-
-				if (intakeTimer.hasElapsed(delayTime)) {
-					double current = inputs.coralMotorSpeed;
-					if (current > currentThreshold) {
-						algaeDetected = true;
-						io.setSpeeds(0.0);
-						resetAlgaeDetection();
-					}
-				}
-				break;
 			case INTAKE_CORAL:
 				if (!inputs.coralSensed) {
 					io.setSpeeds(-0.25);
@@ -69,24 +49,21 @@ public class Intake extends SubsystemBase {
 					io.setSpeeds(-0.5);
 				}
 				break;
-			case OUTTAKE_CORAL:
-				io.setSpeeds(0.9);
-				break;
 		}
 
 		Logger.recordOutput("intake/state", state);
 		Logger.recordOutput("intake/coralMotorSpeed", inputs.coralMotorSpeed);
 	}
 
-	public enum IntakeState {
-		IDLE, INTAKE_CORAL, EJECT_CORAL, OUTTAKE_CORAL, INTAKE_ALGAE
+	public enum CoralState {
+		INTAKE_CORAL, EJECT_CORAL
 	}
 
-	public Command setState(IntakeState m_state) {
+	public Command setState(CoralState m_state) {
 		return Commands.runOnce(() -> this.state = m_state);
 	}
 
-	public void setintakeStateNonCommand(IntakeState m_state) {
+	public void setintakeStateNonCommand(CoralState m_state) {
 		this.state = m_state;
 	}
 

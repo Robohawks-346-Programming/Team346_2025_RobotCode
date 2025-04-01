@@ -1,6 +1,8 @@
 package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,31 +27,36 @@ public class Elevator extends SubsystemBase {
 
 		switch (state) {
 			case LEVEL_1_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_1_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_1_POSITION);
 				break;
 			case LEVEL_2_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_2_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_2_POSITION);
 				break;
 			case LEVEL_3_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_3_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_3_POSITION);
 				break;
 			case LEVEL_4_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_4_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_4_POSITION);
 				break;
 			case ALGAE_LOW:
-				io.setElevatorPosition(ElevatorConstants.ALGAE_LOW);
+				moveToPosition(ElevatorConstants.ALGAE_LOW);
 				break;
 			case ALGAE_HIGH:
-				io.setElevatorPosition(ElevatorConstants.ALGAE_HIGH);
+				moveToPosition(ElevatorConstants.ALGAE_HIGH);
 				break;
 			case ELEVATOR_HOME_POSITION:
-				io.setElevatorPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
+				moveToPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
 				break;
 		}
 
 		Logger.recordOutput("elevator/currentPosition", inputs.position);
 		Logger.recordOutput("elevator/state", state);
 		Logger.recordOutput("elevator/targetPosition", targetPosition);
+	}
+
+	private void moveToPosition(double targetPosition) {
+		this.targetPosition = targetPosition;
+
 	}
 
 	public enum ElevatorState {
@@ -68,14 +75,6 @@ public class Elevator extends SubsystemBase {
 		return Commands.runOnce(() -> targetPosition = pos);
 	}
 
-	public Command runUp() {
-		return Commands.runEnd(() -> io.runManualUp(), () -> io.stop());
-	}
-
-	public Command runDown() {
-		return Commands.runEnd(() -> io.runManualDown(), () -> io.stop());
-	}
-
 	public Command stop() {
 		return Commands.runEnd(() -> io.stop(), () -> io.stop());
 	}
@@ -83,13 +82,4 @@ public class Elevator extends SubsystemBase {
 	public double getTargetPose() {
 		return targetPosition;
 	}
-
-	public ElevatorState getState() {
-		return state;
-	}
-
-	public double getTargetPosition() {
-		return targetPosition;
-	}
-
 }

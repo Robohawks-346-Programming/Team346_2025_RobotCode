@@ -29,7 +29,6 @@ public class ElevatorIOSim implements ElevatorIO {
 
 	@Override
 	public void stop() {
-
 	}
 
 	@Override

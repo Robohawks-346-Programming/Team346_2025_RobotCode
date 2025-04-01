@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -47,7 +48,7 @@ public class ElevatorIOReal implements ElevatorIO {
 
 		motionMagicConfigs = elevatorMotorsConfig.MotionMagic;
 		motionMagicConfigs.MotionMagicExpo_kA = 1 - 0.3;
-		motionMagicConfigs.MotionMagicExpo_kV = 0.12;
+		motionMagicConfigs.MotionMagicExpo_kV = 1;
 
 		elevatorMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -60,13 +61,16 @@ public class ElevatorIOReal implements ElevatorIO {
 		elevatorMotorRIGHT.setPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
 
 		targetPositionInRotations = 0.0;
+
 	}
 
 	@Override
 	public void updateInputs(ElevatorIOInputs inputs) {
-		inputs.position = ((elevatorMotorLEFT.getPosition().getValueAsDouble() +
-				elevatorMotorRIGHT.getPosition().getValueAsDouble()) / 2)
-				* (Math.PI * ElevatorConstants.ELEVATOR_SPOOL_DIAMETER);
+		double leftPosition = elevatorMotorLEFT.getPosition().getValueAsDouble();
+		double rightPosition = elevatorMotorRIGHT.getPosition().getValueAsDouble();
+
+		inputs.position = ((leftPosition + rightPosition) / 2) * (Math.PI * ElevatorConstants.ELEVATOR_SPOOL_DIAMETER);
+
 	}
 
 	@Override

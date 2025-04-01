@@ -1,51 +1,69 @@
 package frc.robot;
 
-import java.io.IOException;
-
-import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.*;
-import frc.robot.subsystems.climb.*;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.*;
+import frc.robot.commands.AkitDriveCommands;
+import frc.robot.commands.AutoAlgaeAlign;
+import frc.robot.commands.ReefBranchAlign;
+import frc.robot.subsystems.algae.Algae;
+import frc.robot.subsystems.algae.AlgaeConstants;
+import frc.robot.subsystems.algae.AlgaeIO;
+import frc.robot.subsystems.algae.AlgaeIOReal;
+import frc.robot.subsystems.algae.AlgaeIOSim;
+import frc.robot.subsystems.algae.Algae.AlgaeState;
+import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.Climb.ClimbState;
+import frc.robot.subsystems.coral.Coral;
+import frc.robot.subsystems.coral.CoralIO;
+import frc.robot.subsystems.coral.CoralIOReal;
+import frc.robot.subsystems.coral.CoralIOSim;
+import frc.robot.subsystems.coral.Coral.CoralState;
+import frc.robot.subsystems.climb.ClimbIO;
+import frc.robot.subsystems.climb.ClimbIOReal;
+import frc.robot.subsystems.climb.ClimbIOSim;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drive.TunerConstants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
-import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.intake.Intake.IntakeState;
-import frc.robot.subsystems.pivot.*;
-import frc.robot.subsystems.pivot.Pivot.PivotState;
-import frc.robot.subsystems.vision.*;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonReal;
+import frc.robot.subsystems.vision.VisionIOPhotonSim;
+import frc.robot.subsystems.vision.VisionLocalizer;
 
 public class RobotContainer {
 	private final Drive drive;
-	// private final Climb climb;
+	private final Climb climb;
 	private final Elevator elevator;
-	private final Intake intake;
-	private final Pivot pivot;
+	private final Coral coral;
+	private final Algae algae;
 	private final VisionLocalizer vision;
+	private ElevatorState wantedLevel;
 
 	private final CommandXboxController controller = new CommandXboxController(0);
+	private final CommandXboxController controller2 = new CommandXboxController(2);
+
 	public static final Joystick operatorControl = new Joystick(Constants.OperatorConstants.OPERATOR_CONTROLLER_PORT);
 	private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -75,10 +93,10 @@ public class RobotContainer {
 						new ModuleIOTalonFX(TunerConstants.FrontRight),
 						new ModuleIOTalonFX(TunerConstants.BackLeft),
 						new ModuleIOTalonFX(TunerConstants.BackRight));
-				// climb = new Climb(new ClimbIOReal());
+				climb = new Climb(new ClimbIOReal());
 				elevator = new Elevator(new ElevatorIOReal());
-				intake = new Intake(new IntakeIOReal(), elevator);
-				pivot = new Pivot(new PivotIOReal());
+				coral = new Coral(new CoralIOReal(), elevator);
+				algae = new Algae(new AlgaeIOReal());
 				vision = new VisionLocalizer(drive::addVisionMeasurement, drive,
 						new VisionIOPhotonReal(VisionConstants.cameraNames[0], VisionConstants.vehicleToCameras[0]),
 						new VisionIOPhotonReal(VisionConstants.cameraNames[1], VisionConstants.vehicleToCameras[1]));
@@ -92,10 +110,10 @@ public class RobotContainer {
 						new ModuleIOSim(TunerConstants.FrontRight),
 						new ModuleIOSim(TunerConstants.BackLeft),
 						new ModuleIOSim(TunerConstants.BackRight));
-				// climb = new Climb(new ClimbIOSim());
+				climb = new Climb(new ClimbIOSim());
 				elevator = new Elevator(new ElevatorIOSim());
-				intake = new Intake(new IntakeIOSim(), elevator);
-				pivot = new Pivot(new PivotIOSim());
+				coral = new Coral(new CoralIOSim(), elevator);
+				algae = new Algae(new AlgaeIOSim());
 				vision = new VisionLocalizer(
 						drive::addVisionMeasurement,
 						drive,
@@ -119,55 +137,48 @@ public class RobotContainer {
 						},
 						new ModuleIO() {
 						});
-				// climb = new Climb(new ClimbIO() {
-				// });
+				climb = new Climb(new ClimbIO() {
+				});
 				elevator = new Elevator(new ElevatorIO() {
 				});
-				intake = new Intake(new IntakeIO() {
+				coral = new Coral(new CoralIO() {
 				}, elevator);
-				pivot = new Pivot(new PivotIO() {
+				algae = new Algae(new AlgaeIO() {
 				});
 				vision = new VisionLocalizer(drive::addVisionMeasurement, drive, new VisionIO() {
 				});
 		}
 
 		vision.setVisionConsumer(drive::addVisionMeasurement);
+		wantedLevel = ElevatorState.ELEVATOR_HOME_POSITION;
 
 		NamedCommands.registerCommand("L4",
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
 						Commands.waitSeconds(0.75),
-						pivot.setTargetPos(PivotConstants.POSITION_4),
 						Commands.waitSeconds(0.25),
-						intake.setState(IntakeState.EJECT_CORAL),
+						coral.setState(CoralState.EJECT_CORAL),
 						Commands.waitSeconds(.25),
 						Commands.parallel(
 								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.POSITION_1),
-								intake.setState(IntakeState.INTAKE_CORAL)),
+								coral.setState(CoralState.INTAKE_CORAL)),
 						Commands.waitSeconds(0.5)));
 		NamedCommands.registerCommand("Algae Low",
 				Commands.sequence(
 						Commands.parallel(
 								elevator.setTargetPos(ElevatorConstants.ALGAE_LOW),
-								pivot.setTargetPos(PivotConstants.ALGAE_HOLD),
 								Commands.waitSeconds(0.5)),
-						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE),
-						intake.setState(IntakeState.INTAKE_CORAL)));
+						algae.setState(AlgaeState.REEF_CLEAR)));
 		NamedCommands.registerCommand("Intake", Commands.race(
-				intake.runManual(),
+				coral.setState(CoralState.INTAKE_CORAL),
 				Commands.waitSeconds(0.5)));
 		NamedCommands.registerCommand("Algae Home", Commands.parallel(
-				elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-				pivot.setTargetPos(PivotConstants.PROCESSOR)));
+				elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION)));
 		NamedCommands.registerCommand("Algae Score",
 				Commands.sequence(
-						pivot.setTargetPos(PivotConstants.PROCESSOR),
+						algae.setState(AlgaeState.PROCESSOR),
 						Commands.waitSeconds(1),
-						Commands.race(
-								intake.setState(IntakeState.OUTTAKE_CORAL),
-								Commands.waitSeconds(1)),
-						pivot.setTargetPos(PivotConstants.POSITION_1),
+						algae.setState(AlgaeState.IDLE),
 						Commands.waitSeconds(1)));
 		NamedCommands.registerCommand("Align Right", Commands.race(
 				new ReefBranchAlign(drive,
@@ -182,29 +193,18 @@ public class RobotContainer {
 								new Rotation2d()),
 						() -> controller.getLeftY()),
 				Commands.waitSeconds(1)));
-		NamedCommands.registerCommand("Align Right and L2", Commands.parallel(
+		NamedCommands.registerCommand("Align Right and L4", Commands.parallel(
 				new ReefBranchAlign(drive,
 						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.5),
 								new Rotation2d()),
 						() -> controller.getLeftY()),
-				elevator.setState(ElevatorState.LEVEL_2_POSITION),
-				Commands.waitSeconds(1)));
-		NamedCommands.registerCommand("Align Left and L2", Commands.parallel(
+				elevator.setState(ElevatorState.LEVEL_4_POSITION)));
+		NamedCommands.registerCommand("Align Left and L4", Commands.parallel(
 				new ReefBranchAlign(drive,
 						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.5),
 								new Rotation2d()),
 						() -> controller.getLeftY()),
-				elevator.setState(ElevatorState.LEVEL_4_POSITION),
-				Commands.waitSeconds(1)));
-		NamedCommands.registerCommand(" INSANE L4",
-				Commands.sequence(
-						intake.setState(IntakeState.EJECT_CORAL),
-						Commands.waitSeconds(.25),
-						Commands.parallel(
-								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.POSITION_1),
-								intake.setState(IntakeState.INTAKE_CORAL)),
-						Commands.waitSeconds(0.5)));
+				elevator.setState(ElevatorState.LEVEL_4_POSITION)));
 
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -222,14 +222,6 @@ public class RobotContainer {
 						() -> -controller.getLeftY(),
 						() -> -controller.getLeftX(),
 						() -> -controller.getRightX()));
-		// controller
-		// .a()
-		// .whileTrue(
-		// AkitDriveCommands.joystickDriveAtAngle(
-		// drive,
-		// () -> -controller.getLeftY(),
-		// () -> -controller.getLeftX(),
-		// () -> new Rotation2d()));
 		controller
 				.rightBumper()
 				.onTrue(
@@ -239,157 +231,127 @@ public class RobotContainer {
 								drive)
 								.ignoringDisable(true));
 
-		controller.a().whileTrue(
-				Commands.sequence(
-						pivot.setTargetPos(PivotConstants.POSITION_1),
-						intake.setState(IntakeState.INTAKE_CORAL)));
+		BUTTON_1.onTrue(elevator.setTargetPos(ElevatorConstants.LEVEL_1_POSITION));
+		BUTTON_2.onTrue(elevator.setTargetPos(ElevatorConstants.LEVEL_2_POSITION));
+		BUTTON_3.onTrue(elevator.setTargetPos(ElevatorConstants.LEVEL_3_POSITION));
+		BUTTON_4.onTrue(elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION));
 
-		controller.b().whileTrue(
-				intake.setState(IntakeState.EJECT_CORAL)).onFalse(
-						Commands.parallel(
-								intake.setState(IntakeState.IDLE),
-								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.POSITION_1)));
-
-		controller.x().whileTrue(
-				intake.setState(IntakeState.INTAKE_ALGAE))
-				.onFalse(Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-						pivot.setTargetPos(PivotConstants.ALGAE_HOLD)));
-		controller.y().whileTrue(
-				intake.setState(IntakeState.OUTTAKE_CORAL))
-				.onFalse(
-						Commands.parallel(
-								intake.setState(IntakeState.IDLE),
-								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.POSITION_1)));
-
-		BUTTON_1.onTrue(
-				Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_1_POSITION),
-						pivot.setTargetPos(PivotConstants.POSITION_1)));
-		BUTTON_2.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_2_POSITION),
-						Commands.waitSeconds(0.15),
-						pivot.setTargetPos(PivotConstants.POSITION_2)));
-		BUTTON_3.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_3_POSITION),
-						Commands.waitSeconds(0.4),
-						pivot.setTargetPos(PivotConstants.POSITION_3)));
-		BUTTON_4.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
-						Commands.waitSeconds(0.75),
-						pivot.setTargetPos(PivotConstants.POSITION_4)));
-
-		BUTTON_8.onTrue(
-				Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-						pivot.setTargetPos(PivotConstants.POSITION_1)));
+		BUTTON_8.onTrue(elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION));
 
 		BUTTON_16.onTrue(
 				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-						pivot.setTargetPos(PivotConstants.ALGAE_HOLD)));
+						algae.setState(AlgaeState.ALGAE_HOLD)));
 
-		BUTTON_9.onTrue(pivot.setTargetPos(PivotConstants.GROUND_INTAKE));
-		BUTTON_10.onTrue(pivot.setTargetPos(PivotConstants.PROCESSOR));
+		BUTTON_9.onTrue(algae.setState(AlgaeState.GROUND_INTAKE));
+		BUTTON_10.onTrue(algae.setState(AlgaeState.PROCESSOR));
 		BUTTON_11.onTrue(
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.ALGAE_LOW),
 						Commands.waitSeconds(0.5),
-						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE)));
+						algae.setState(AlgaeState.REEF_CLEAR)));
 		BUTTON_12.onTrue(
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.ALGAE_HIGH),
 						Commands.waitSeconds(0.5),
-						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE)));
+						algae.setState(AlgaeState.REEF_CLEAR)));
 
-		// BUTTON_13.whileTrue(climb.runUp()).whileFalse(climb.stop());
-		// BUTTON_14.whileTrue(climb.runDown()).whileFalse(climb.stop());
+		BUTTON_13.whileTrue(climb.runUp()).whileFalse(climb.stop());
+		BUTTON_14.whileTrue(climb.runDown()).whileFalse(climb.stop());
 
-		BUTTON_5.whileTrue(Commands.sequence(
-				pivot.setTargetPos(PivotConstants.POSITION_1),
-				intake.setState(IntakeState.INTAKE_CORAL))).onFalse(intake.setState(IntakeState.IDLE));
-		BUTTON_6.whileTrue(intake.setState(IntakeState.OUTTAKE_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
-		BUTTON_7.whileTrue(intake.setState(IntakeState.EJECT_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
-		BUTTON_15.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
-						Commands.waitSeconds(0.75),
-						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE - 40),
-						intake.setState(IntakeState.OUTTAKE_CORAL)));
+		BUTTON_5.whileTrue(coral.setState(CoralState.INTAKE_CORAL)).onFalse(coral.setState(CoralState.INTAKE_CORAL));
+		BUTTON_6.whileTrue(coral.setState(CoralState.INTAKE_CORAL)).onFalse(coral.setState(CoralState.INTAKE_CORAL));
+		BUTTON_7.whileTrue(coral.setState(CoralState.EJECT_CORAL)).onFalse(coral.setState(CoralState.INTAKE_CORAL));
 
 		controller.rightTrigger().whileTrue(
 				Commands.sequence(
-
 						new ReefBranchAlign(drive,
 								new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(-6.75),
-										new Rotation2d()),
+										new Rotation2d(Math.PI)),
 								() -> controller.getLeftY()),
-
 						Commands.waitSeconds(0.5),
-						elevator.setState(ElevatorState.LEVEL_4_POSITION),
-						pivot.setState(PivotState.POSITION_4),
-
+						elevator.setState(wantedLevel),
 						new ReefBranchAlign(drive,
 								new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
-										new Rotation2d()),
+										new Rotation2d(Math.PI)),
 								() -> controller.getLeftY()),
 
-						Commands.run(() -> intake.setState(IntakeState.EJECT_CORAL))));
+						Commands.run(() -> coral.setState(CoralState.EJECT_CORAL)),
+						Commands.waitSeconds(1),
+						elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
 
-		// Commands.sequence(
-
-		// new ReefBranchAlign(drive,
-		// new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(-6.75),
-		// new Rotation2d()),
-		// () -> controller.getLeftY()),
-
-		// Commands.runOnce(() -> {
-
-		// elevator.setState(ElevatorState.LEVEL_4_POSITION);
-
-		// pivot.setState(PivotState.POSITION_4);
-		// }),
-
-		// Commands.waitSeconds(1),
-
-		// new ReefBranchAlign(drive,
-		// new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
-		// new Rotation2d()),
-		// () -> controller.getLeftY()),
-
-		// Commands.runOnce(() -> {
-		// intake.setState(IntakeState.EJECT_CORAL);
-		// })));
-
-		controller.leftBumper().whileTrue(
+		controller.leftTrigger().whileTrue(
 				Commands.sequence(
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(6.75),
+										new Rotation2d(Math.PI)),
+								() -> controller.getLeftY()),
+						Commands.waitSeconds(0.5),
+						elevator.setState(wantedLevel),
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.75),
+										new Rotation2d(Math.PI)),
+								() -> controller.getLeftY()),
+
+						Commands.run(() -> coral.setState(CoralState.EJECT_CORAL)),
+						Commands.waitSeconds(1),
+						elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
+
+		controller.rightBumper().whileTrue(
+				Commands.sequence(
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(0),
+										new Rotation2d(Math.PI)),
+								() -> controller.getLeftY()),
+						Commands.waitSeconds(0.5),
+						new AutoAlgaeAlign(drive, elevator, new Transform2d()),
+						algae.setState(AlgaeState.REEF_CLEAR),
 						new ReefBranchAlign(drive,
 								new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(0),
 										new Rotation2d(Math.PI)),
 								() -> controller.getLeftY()),
-						new AutoAlgaeAlign(drive, elevator, pivot, intake, new Transform2d())));
+						algae.setState(AlgaeState.REEF_CLEAR).until(() -> algae.getCurrent() > 10),
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(0), // Back up before
+																									// bringing algae
+																									// down
+										new Rotation2d(Math.PI)),
+								() -> controller.getLeftY()),
+						elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
 
-		// controller.leftBumper().onTrue(
-		// AkitDriveCommands.joystickDrive(
-		// drive,
-		// () -> -controller.getLeftY(),
-		// () -> -controller.getLeftX(),
-		// () -> -controller.getRightX()));
-		// }
+		controller.leftBumper().onTrue(
+				AkitDriveCommands.joystickDrive(
+						drive,
+						() -> -controller.getLeftY(),
+						() -> -controller.getLeftX(),
+						() -> -controller.getRightX()));
+
+		controller2.a().onTrue(
+				Commands.runOnce(() -> wantedLevel = ElevatorState.LEVEL_1_POSITION));
+
+		controller2.b().onTrue(
+				Commands.runOnce(() -> wantedLevel = ElevatorState.LEVEL_2_POSITION));
+
+		controller2.x().onTrue(
+				Commands.runOnce(() -> wantedLevel = ElevatorState.LEVEL_3_POSITION));
+
+		controller2.y().onTrue(
+				Commands.runOnce(() -> wantedLevel = ElevatorState.LEVEL_4_POSITION));
+
+		controller2.rightBumper().onTrue(
+				Commands.sequence(
+						climb.setState(ClimbState.SERVO_DEPLOY),
+						Commands.waitSeconds(2),
+						climb.setState(ClimbState.CLIMB_OUT)));
+
+		controller2.leftBumper().onTrue(
+				Commands.sequence(
+						climb.setState(ClimbState.CLIMB_IN)));
+
 	}
 
 	public Command getAutonomousCommand() {
 		return autoChooser.get();
-	}
-
-	public void teleopInit() {
-		intake.setState(IntakeState.IDLE);
-		pivot.setTargetPos(PivotConstants.POSITION_1);
 	}
 
 }
