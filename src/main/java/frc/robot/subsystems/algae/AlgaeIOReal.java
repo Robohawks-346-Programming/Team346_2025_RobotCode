@@ -21,7 +21,7 @@ public class AlgaeIOReal implements AlgaeIO {
 	private TalonFXConfiguration pivotMotorConfig;
 	private MotionMagicExpoVoltage motionMagicVoltage;
 	private MotionMagicConfigs motionMagicConfigs;
-	private SparkFlex algaeMotor;
+	private TalonFX algaeMotor;
 
 	public AlgaeIOReal() {
 		pivotMotor = new TalonFX(AlgaeConstants.PIVOT_MOTOR_ID);
@@ -38,10 +38,10 @@ public class AlgaeIOReal implements AlgaeIO {
 		pivotMotorConfig.Slot0.kS = AlgaeConstants.PIVOT_kS;
 		pivotMotorConfig.Feedback.SensorToMechanismRatio = AlgaeConstants.PIVOT_GEAR_RATIO;
 
-		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
 		pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 150;
 
 		motionMagicVoltage = new MotionMagicExpoVoltage(0);
 		motionMagicVoltage.EnableFOC = true;
@@ -56,13 +56,13 @@ public class AlgaeIOReal implements AlgaeIO {
 
 		targetPositionInRotations = 0.0;
 
-		algaeMotor = new SparkFlex(AlgaeConstants.ALGAE_MOTOR_ID, MotorType.kBrushless);
+		algaeMotor = new TalonFX(AlgaeConstants.ALGAE_MOTOR_ID);
 	}
 
 	@Override
 	public void updateInputs(AlgaeIOInputs inputs) {
 		inputs.position = Units.rotationsToDegrees(pivotMotor.getPosition().getValueAsDouble());
-		inputs.intakeCurrent = algaeMotor.getOutputCurrent();
+		inputs.intakeCurrent = algaeMotor.getStatorCurrent().getValueAsDouble();
 	}
 
 	@Override
@@ -72,12 +72,12 @@ public class AlgaeIOReal implements AlgaeIO {
 
 	@Override
 	public void intake() {
-		algaeMotor.setVoltage(2);
+		algaeMotor.setVoltage(-3.7);
 	}
 
 	@Override
 	public void eject() {
-		algaeMotor.setVoltage(-2);
+		algaeMotor.setVoltage(4);
 	}
 
 	@Override

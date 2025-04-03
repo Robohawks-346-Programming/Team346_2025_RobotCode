@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,6 +14,7 @@ public class Elevator extends SubsystemBase {
 	private final ElevatorIO io;
 	private ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 	private ElevatorState state = ElevatorState.ELEVATOR_HOME_POSITION;
+	private ElevatorState autoScore = ElevatorState.LEVEL_1_POSITION;
 	private double targetPosition;
 
 	public Elevator(ElevatorIO io) {
@@ -45,17 +47,19 @@ public class Elevator extends SubsystemBase {
 				moveToPosition(ElevatorConstants.ALGAE_HIGH);
 				break;
 			case ELEVATOR_HOME_POSITION:
-				moveToPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
+				moveToPosition(ElevatorConstants.ELEVATOR_HOME_POSITION + 0.25);
 				break;
 		}
 
 		Logger.recordOutput("elevator/currentPosition", inputs.position);
 		Logger.recordOutput("elevator/state", state);
 		Logger.recordOutput("elevator/targetPosition", targetPosition);
+		Logger.recordOutput("elevator/autScoreState", autoScore);
+		SmartDashboard.putString("Auto Score Level", autoScore.toString());
 	}
 
 	private void moveToPosition(double targetPosition) {
-		this.targetPosition = targetPosition;
+		io.setElevatorPosition(targetPosition);
 
 	}
 
@@ -81,5 +85,13 @@ public class Elevator extends SubsystemBase {
 
 	public double getTargetPose() {
 		return targetPosition;
+	}
+
+	public Command setAutoScore(ElevatorState m_state) {
+		return Commands.runOnce(() -> autoScore = m_state);
+	}
+
+	public Command autoScore() {
+		return Commands.runOnce(() -> this.state = autoScore);
 	}
 }

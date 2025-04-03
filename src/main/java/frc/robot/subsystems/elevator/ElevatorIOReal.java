@@ -47,8 +47,8 @@ public class ElevatorIOReal implements ElevatorIO {
 		motionMagicVoltage.EnableFOC = true;
 
 		motionMagicConfigs = elevatorMotorsConfig.MotionMagic;
-		motionMagicConfigs.MotionMagicExpo_kA = 1 - 0.3;
-		motionMagicConfigs.MotionMagicExpo_kV = 1;
+		motionMagicConfigs.MotionMagicExpo_kA = 1 - 0.7;
+		motionMagicConfigs.MotionMagicExpo_kV = 0.12;
 
 		elevatorMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 

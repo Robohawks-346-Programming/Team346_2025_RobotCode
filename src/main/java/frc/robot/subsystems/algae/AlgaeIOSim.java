@@ -12,6 +12,7 @@ public class AlgaeIOSim implements AlgaeIO {
 	@Override
 	public void updateInputs(AlgaeIOInputs inputs) {
 		inputs.position = pivotPosition;
+		inputs.intakeCurrent = 0;
 	}
 
 	@Override

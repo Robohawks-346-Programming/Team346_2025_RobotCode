@@ -75,18 +75,16 @@ public class AutoAlgaeAlign extends Command {
 		Logger.recordOutput("Drivetrain/DriveToPose/HighAlgae", highAlgae);
 		Logger.recordOutput("Drivetrain/DriveToPose/LowAlgae", lowAlgae);
 
-		new WaitCommand(1);
-
 	}
 
 	@Override
 	public void execute() {
 		if (highAlgae) {
 
-			m_elevator.setStateNonCommand(ElevatorState.LEVEL_3_POSITION);
+			m_elevator.setStateNonCommand(ElevatorState.ALGAE_HIGH);
 		} else if (lowAlgae) {
 
-			m_elevator.setStateNonCommand(ElevatorState.LEVEL_2_POSITION);
+			m_elevator.setStateNonCommand(ElevatorState.ALGAE_LOW);
 		}
 
 	}

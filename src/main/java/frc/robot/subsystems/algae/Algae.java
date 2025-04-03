@@ -19,16 +19,23 @@ public class Algae extends SubsystemBase {
 	@Override
 	public void periodic() {
 		io.updateInputs(inputs);
-		Logger.processInputs("pivot", inputs);
+		Logger.processInputs("algae", inputs);
 
 		switch (state) {
 			case GROUND_INTAKE:
+				// if (getCurrent()) {
+				// io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION);
+				// io.stop();
+				// } else {
+				// io.setPivotPosition(AlgaeConstants.GROUND_INTAKE);
+				// io.intake();
+				// }
 				io.setPivotPosition(AlgaeConstants.GROUND_INTAKE);
 				io.intake();
 				break;
 			case ALGAE_HOLD:
-				io.setPivotPosition(AlgaeConstants.ALGAE_HOLD);
-				io.stop();
+				io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION);
+				io.intake();
 				break;
 			case IDLE:
 				io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION);
@@ -38,11 +45,28 @@ public class Algae extends SubsystemBase {
 				io.eject();
 				break;
 			case REEF_CLEAR:
+				// if (getCurrent()) {
+				// io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION);
+				// io.stop();
+				// } else {
+				// io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION);
+				// io.intake();
+				// }
+				io.setPivotPosition(AlgaeConstants.PIVOT_HOME_POSITION + 20);
 				io.intake();
 				break;
 			case PROCESSOR:
 				io.setPivotPosition(AlgaeConstants.GROUND_INTAKE);
 				io.eject();
+				break;
+			case START:
+				io.intake();
+				break;
+			case NET:
+				io.setPivotPosition(-150);
+				break;
+			case CLIMB:
+				io.setPivotPosition(AlgaeConstants.GROUND_INTAKE);
 				break;
 		}
 
@@ -53,14 +77,15 @@ public class Algae extends SubsystemBase {
 	}
 
 	public enum AlgaeState {
-		GROUND_INTAKE, ALGAE_HOLD, IDLE, EJECT, REEF_CLEAR, PROCESSOR
+		GROUND_INTAKE, ALGAE_HOLD, IDLE, EJECT, REEF_CLEAR, PROCESSOR, START, NET, CLIMB
 	}
 
 	public Command setState(AlgaeState newState) {
 		return Commands.runOnce(() -> this.state = newState);
 	}
 
-	public double getCurrent() {
-		return inputs.intakeCurrent;
+	public boolean getCurrent() {
+		return inputs.intakeCurrent > 40;
 	}
+
 }

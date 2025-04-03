@@ -19,8 +19,8 @@ public final class VisionConstants {
 	public static final String[] cameraNames = {
 			"FL",
 			"FR",
-			// "BL",
-			// "BR"
+			"BL",
+			"BR"
 	};
 
 	public static final Transform3d[] vehicleToCameras = {
@@ -28,6 +28,10 @@ public final class VisionConstants {
 					new Rotation3d(0, 0, Units.degreesToRadians(-45))), // FL
 			new Transform3d(new Translation3d(0.263383, -0.275693, 0.259765),
 					new Rotation3d(0, 0, Units.degreesToRadians(42.5))), // FR
+			new Transform3d(new Translation3d(-0.3459226, 0.3729482, 0.15875),
+					new Rotation3d(0, 0, Units.degreesToRadians(-90 - 35))), // BL
+			new Transform3d(new Translation3d(-0.3459226, -0.3729482, 0.15875),
+					new Rotation3d(0, 0, Units.degreesToRadians(90 + 35))), // BR
 			// Add additional cameras here
 	};
 
@@ -37,5 +41,5 @@ public final class VisionConstants {
 
 	// Field Layout for visual localization and map generation
 	public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
-			.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+			.loadField(AprilTagFields.k2025ReefscapeWelded);
 }

@@ -5,10 +5,15 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.algae.AlgaeConstants;
 
+import java.net.http.HttpResponse.PushPromiseHandler;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.utility.LegacyPhoenixPIDController;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class ClimbIOReal extends SubsystemBase implements ClimbIO {
@@ -16,7 +21,7 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 	public final TalonFX climbMotor;
 	private double targetPositionInRotations;
 	private TalonFXConfiguration climbMotorConfig;
-	private MotionMagicExpoVoltage motionMagicVoltage;
+	private PositionVoltage motionMagicVoltage;
 	private MotionMagicConfigs motionMagicConfigs;
 	private final Servo rightServo;
 	private final Servo leftServo;
@@ -36,12 +41,14 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 
 		climbMotorConfig.Feedback.SensorToMechanismRatio = ClimbConstants.CLIMB_GEAR_RATIO;
 
-		motionMagicVoltage = new MotionMagicExpoVoltage(0);
+		motionMagicVoltage = new PositionVoltage(0);
 		motionMagicVoltage.EnableFOC = true;
 
 		motionMagicConfigs = climbMotorConfig.MotionMagic;
 		motionMagicConfigs.MotionMagicExpo_kA = 1;
 		motionMagicConfigs.MotionMagicExpo_kV = ClimbConstants.CLIMB_kV;
+
+		climbMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
 		climbMotor.getConfigurator().apply(climbMotorConfig);
 
@@ -50,13 +57,15 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 		targetPositionInRotations = 0.0;
 
 		rightServo = new Servo(ClimbConstants.SERVO_RIGHT);
-		leftServo = new Servo(ClimbConstants.SERVO_RIGHT);
+		leftServo = new Servo(ClimbConstants.SERVO_LEFT);
 
 	}
 
 	@Override
 	public void updateInputs(ClimbIOInputs inputs) {
 		inputs.position = Units.rotationsToDegrees(climbMotor.getPosition().getValueAsDouble());
+		inputs.servoLeftPos = leftServo.getAngle();
+		inputs.servoRightPose = rightServo.getAngle();
 	}
 
 	@Override
@@ -82,8 +91,20 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 	}
 
 	@Override
-	public void funnelUp() {
-		leftServo.set(45); // WPILib docs said 180 is a full rotation
-		rightServo.set(-45);
+	public void setFunnel(double proportion) {
+		int pulseTime = (int) (proportion * 2000.0) + 500;
+		System.out.println("Setting pulse time " + pulseTime);
+		leftServo.setPulseTimeMicroseconds(pulseTime);
+		rightServo.setPulseTimeMicroseconds(3000 - pulseTime);
+
+	}
+
+	@Override
+	public void resetFunnel() {
+		leftServo.setZeroLatch();
+		rightServo.setZeroLatch();
+
+		leftServo.setAlwaysHighMode();
+		rightServo.setAlwaysHighMode();
 	}
 }

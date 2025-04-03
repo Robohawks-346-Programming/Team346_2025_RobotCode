@@ -15,9 +15,13 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -29,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends LoggedRobot {
 	private Command m_autonomousCommand;
 
-	private final RobotContainer m_robotContainer;
+	private RobotContainer m_robotContainer;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -65,7 +69,10 @@ public class Robot extends LoggedRobot {
 
 		Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
 						// be added.
+	}
 
+	@Override
+	public void robotInit() {
 		m_robotContainer = new RobotContainer();
 
 		PathfindingCommand.warmupCommand().schedule();
@@ -135,6 +142,7 @@ public class Robot extends LoggedRobot {
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
+
 	}
 
 	@Override

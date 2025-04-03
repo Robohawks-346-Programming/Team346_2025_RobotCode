@@ -16,13 +16,13 @@ public class ElevatorConstants {
 	public static final double ELEVATOR_HOME_POSITION = 0;
 	public static final double POSITION_TOLERANCE = 0.5;
 
-	public static final double LEVEL_1_POSITION = 3.5;
-	public static final double LEVEL_2_POSITION = 8;
-	public static final double LEVEL_3_POSITION = 16;
-	public static final double LEVEL_4_POSITION = 28;
+	public static final double LEVEL_1_POSITION = 6;
+	public static final double LEVEL_2_POSITION = 10.5;
+	public static final double LEVEL_3_POSITION = 18;
+	public static final double LEVEL_4_POSITION = 30.5;
 
-	public static final double ALGAE_LOW = 20;
-	public static final double ALGAE_HIGH = 28;
+	public static final double ALGAE_LOW = 6;
+	public static final double ALGAE_HIGH = 13;
 
 	public static final double ELEVATOR_GEAR_RATIO = (12.375 / 9) * 5;
 

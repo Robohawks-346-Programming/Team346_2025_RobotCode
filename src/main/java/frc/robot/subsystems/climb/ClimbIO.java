@@ -7,6 +7,8 @@ public interface ClimbIO {
 	@AutoLog
 	public static class ClimbIOInputs {
 		public double position = ClimbConstants.CLIMB_HOME_POSITION;
+		public double servoLeftPos = 0;
+		public double servoRightPose = 0;
 
 	}
 
@@ -22,9 +24,12 @@ public interface ClimbIO {
 	public default void runManualDown() {
 	}
 
+	public default void setFunnel(double t) {
+	}
+
 	public default void stop() {
 	}
 
-	public default void funnelUp() {
+	public default void resetFunnel() {
 	}
 }

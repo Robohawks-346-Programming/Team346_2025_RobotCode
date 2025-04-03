@@ -78,6 +78,7 @@ public class ReefBranchAlign extends Command {
 				initialPose.getRotation().getRadians(),
 				fieldVelocity.omegaRadiansPerSecond);
 		m_lastSetpointTranslation = initialPose.getTranslation();
+		Logger.recordOutput("Drivetrain/DriveToPose/ISFINISHED", false);
 	}
 
 	@Override
@@ -145,6 +146,7 @@ public class ReefBranchAlign extends Command {
 
 	@Override
 	public boolean isFinished() {
+		Logger.recordOutput("Drivetrain/DriveToPose/ISFINISHED", true);
 		return (Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getX()) < 0.05)
 				&&
 				(Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getY()) < 0.05);

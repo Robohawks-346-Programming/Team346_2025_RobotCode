@@ -13,54 +13,60 @@ import frc.robot.subsystems.coral.CoralIOInputsAutoLogged;
 public class Coral extends SubsystemBase {
 	private CoralIO io;
 	private CoralIOInputsAutoLogged inputs = new CoralIOInputsAutoLogged();
-	private CoralState state = CoralState.INTAKE_CORAL;
-	private Elevator m_Elevator;
+	private CoralState state = CoralState.IDLE;
 	private boolean algaeDetected = false;
 	private double currentThreshold = 5.0;
 	private double delayTime = 0.5;
 	private Timer intakeTimer = new Timer();
 	private boolean wasIntaking = false;
 
-	public Coral(CoralIO io, Elevator elevator) {
+	public Coral(CoralIO io) {
 		this.io = io;
-		m_Elevator = elevator;
 	}
 
 	@Override
 	public void periodic() {
 		io.updateInputs(inputs);
-		Logger.processInputs("Algae", inputs);
-		Logger.processInputs("intake", inputs);
+		Logger.processInputs("coral", inputs);
 		SmartDashboard.putBoolean("Intake", inputs.coralSensed);
 
 		switch (state) {
 			case INTAKE_CORAL:
 				if (!inputs.coralSensed) {
-					io.setSpeeds(-0.25);
+					io.setSpeeds(0.7);
 				} else {
-					io.setSpeeds(0.0);
+					io.setSpeeds(0);
 				}
 				break;
 			case EJECT_CORAL:
-				if (m_Elevator.getTargetPose() == ElevatorConstants.LEVEL_4_POSITION
-						|| m_Elevator.getTargetPose() == ElevatorConstants.LEVEL_1_POSITION) {
-					io.setSpeeds(-0.9);
+				io.setSpeeds(0.75);
+				break;
+			case STAGE:
+				if (inputs.coralSensed) {
+					io.setSpeeds(0.1);
 				} else {
-					io.setSpeeds(-0.5);
+					io.setSpeeds(0);
 				}
+				break;
+			case IDLE:
+				io.setSpeeds(0);
 				break;
 		}
 
-		Logger.recordOutput("intake/state", state);
-		Logger.recordOutput("intake/coralMotorSpeed", inputs.coralMotorSpeed);
+		Logger.recordOutput("coral/state", state);
+		Logger.recordOutput("coral/coralMotorSpeed", inputs.coralMotorSpeed);
 	}
 
 	public enum CoralState {
-		INTAKE_CORAL, EJECT_CORAL
+		INTAKE_CORAL, EJECT_CORAL, STAGE, IDLE
 	}
 
 	public Command setState(CoralState m_state) {
 		return Commands.runOnce(() -> this.state = m_state);
+	}
+
+	public void setStateNew(CoralState m_state) {
+		this.state = m_state;
 	}
 
 	public void setintakeStateNonCommand(CoralState m_state) {
@@ -71,37 +77,7 @@ public class Coral extends SubsystemBase {
 		return Commands.runEnd(() -> io.setSpeeds(-.9), () -> io.setSpeeds(0));
 	}
 
-	public Command intakeUntilAlgaeDetected(double delay) {
-		io.setSpeeds(-0.5);
-
-		if (!intakeTimer.isRunning() && inputs.coralMotorSpeed > 0 && !wasIntaking) {
-			intakeTimer.reset();
-			intakeTimer.start();
-			wasIntaking = true;
-		}
-
-		if (intakeTimer.get() < delayTime) {
-			return Commands.none();
-		}
-
-		double current = inputs.coralMotorSpeed;
-		if (current > currentThreshold) {
-			algaeDetected = true;
-			io.setSpeeds(0.0);
-			resetAlgaeDetection();
-		}
-
-		return Commands.none();
-	}
-
-	public void resetAlgaeDetection() {
-		algaeDetected = false;
-		intakeTimer.stop();
-		intakeTimer.reset();
-		wasIntaking = false;
-	}
-
-	public boolean isAlgaeDetected() {
-		return algaeDetected;
+	public boolean isCoralDetected() {
+		return inputs.coralSensed;
 	}
 }

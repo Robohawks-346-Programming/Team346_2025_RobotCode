@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Servo; // Import Servo class
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 
 public class Climb extends SubsystemBase {
@@ -16,6 +17,7 @@ public class Climb extends SubsystemBase {
 	public Climb(ClimbIO io) {
 		this.io = io;
 		position = 0.0;
+		io.resetFunnel();
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class Climb extends SubsystemBase {
 				io.setClimbPosition(ClimbConstants.CLIMB_POSITION_2);
 				break;
 			case SERVO_DEPLOY:
-				io.funnelUp();
+				io.setFunnel(1);
 				break;
 			case IDLE:
 				io.setClimbPosition(ClimbConstants.CLIMB_HOME_POSITION);
@@ -70,5 +72,21 @@ public class Climb extends SubsystemBase {
 
 	public Command stop() {
 		return Commands.runEnd(() -> io.stop(), () -> io.stop());
+	}
+
+	public Command funnelUp() {
+		return Commands.runOnce(() -> io.setFunnel(0.5));
+	}
+
+	public Command resetFunnel() {
+		return Commands.runOnce(() -> io.setFunnel(0));
+	}
+
+	public Command test(CommandXboxController controller) {
+		System.out.println("Test command construction");
+		return Commands.run(() -> {
+			System.out.println("Test command loop");
+			io.setFunnel(controller.getRightTriggerAxis());
+		});
 	}
 }
