@@ -89,9 +89,9 @@ public class AkitDriveCommands {
 
 					// Convert to field relative speeds & send command
 					ChassisSpeeds speeds = new ChassisSpeeds(
-							linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-							linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-							omega * drive.getMaxAngularSpeedRadPerSec());
+							linearVelocity.getX() * (drive.getMaxLinearSpeedMetersPerSec()),
+							linearVelocity.getY() * (drive.getMaxLinearSpeedMetersPerSec()),
+							omega * (drive.getMaxAngularSpeedRadPerSec()));
 					boolean isFlipped = DriverStation.getAlliance().isPresent()
 							&& DriverStation.getAlliance().get() == Alliance.Red;
 					drive.runVelocity(
@@ -122,7 +122,8 @@ public class AkitDriveCommands {
 				ANGLE_KP,
 				0.0,
 				ANGLE_KD,
-				new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+				new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY,
+						ANGLE_MAX_ACCELERATION));
 		angleController.enableContinuousInput(-Math.PI, Math.PI);
 
 		// Construct command

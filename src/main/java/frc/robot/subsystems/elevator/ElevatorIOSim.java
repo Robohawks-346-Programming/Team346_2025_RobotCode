@@ -1,9 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class ElevatorIOSim implements ElevatorIO {
 
 	private double elevatorPosition = 0.0;
@@ -13,7 +9,7 @@ public class ElevatorIOSim implements ElevatorIO {
 	}
 
 	@Override
-	public void updateInputs(ElevatorIOInputs inputs) {
+	public void updateInputs(ElevatorIOInputsAutoLogged inputs) {
 		inputs.position = elevatorPosition;
 	}
 
@@ -29,7 +25,6 @@ public class ElevatorIOSim implements ElevatorIO {
 
 	@Override
 	public void stop() {
-
 	}
 
 	@Override

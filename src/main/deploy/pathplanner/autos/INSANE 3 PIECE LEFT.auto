@@ -13,13 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Align Right and L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "INSANE L4"
+            "name": "Auto Score Right"
           }
         },
         {
@@ -43,13 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Align Left and L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "INSANE L4"
+            "name": "Auto Score Left"
           }
         },
         {
@@ -73,43 +61,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Align Right and L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "INSANE L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "INSANE 3 PIECE LEFT.5"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.7
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "INSANE 3 PIECE LEFT.6"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Align Left and L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "INSANE L4"
+            "name": "Auto Score Right"
           }
         }
       ]

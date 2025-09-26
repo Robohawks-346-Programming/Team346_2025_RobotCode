@@ -1,16 +1,27 @@
 package frc.robot.subsystems.elevator;
 
-import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
+// Note: removed org.littletonrobotics.junction.Logger import to avoid compile errors
+// if AdvantageKit (and its annotation processor) isn't installed.
 
 public class Elevator extends SubsystemBase {
 	private final ElevatorIO io;
+
+	/**
+	 * This used to be the annotation-generated class:
+	 * ElevatorIOInputsAutoLogged
+	 *
+	 * If you install AdvantageKit and the annotation processor runs correctly,
+	 * delete the fallback class at the bottom of this file and re-enable Logger
+	 * calls in periodic().
+	 */
 	private ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+
 	private ElevatorState state = ElevatorState.ELEVATOR_HOME_POSITION;
+	private ElevatorState autoScore = ElevatorState.LEVEL_1_POSITION;
 	private double targetPosition;
 
 	public Elevator(ElevatorIO io) {
@@ -20,36 +31,56 @@ public class Elevator extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		// update inputs from hardware/io layer
 		io.updateInputs(inputs);
-		Logger.processInputs("elevator", inputs);
+
+		// --- TEMPORARY: replaced AdvantageKit logging with SmartDashboard calls so
+		// file compiles ---
+		// If you have AdvantageKit installed and the generated Inputs class available,
+		// replace the SmartDashboard lines below with:
+		// Logger.processInputs("elevator", inputs);
+		// Logger.recordOutput("elevator/currentPosition", inputs.position);
+		// Logger.recordOutput("elevator/state", state);
+		// Logger.recordOutput("elevator/targetPosition", targetPosition);
+		// Logger.recordOutput("elevator/autoScoreState", autoScore);
+		//
+		// and re-add the import:
+		// import org.littletonrobotics.junction.Logger;
+
+		SmartDashboard.putNumber("elevator/currentPosition", inputs.position);
+		SmartDashboard.putString("elevator/state", state.toString());
+		SmartDashboard.putNumber("elevator/targetPosition", targetPosition);
+		SmartDashboard.putString("elevator/autoScoreState", autoScore.toString());
+		SmartDashboard.putString("Auto Score Level", autoScore.toString());
+		// ---------------------------------------------------------------------------------------
 
 		switch (state) {
 			case LEVEL_1_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_1_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_1_POSITION);
 				break;
 			case LEVEL_2_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_2_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_2_POSITION);
 				break;
 			case LEVEL_3_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_3_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_3_POSITION);
 				break;
 			case LEVEL_4_POSITION:
-				io.setElevatorPosition(ElevatorConstants.LEVEL_4_POSITION);
+				moveToPosition(ElevatorConstants.LEVEL_4_POSITION);
 				break;
 			case ALGAE_LOW:
-				io.setElevatorPosition(ElevatorConstants.ALGAE_LOW);
+				moveToPosition(ElevatorConstants.ALGAE_LOW);
 				break;
 			case ALGAE_HIGH:
-				io.setElevatorPosition(ElevatorConstants.ALGAE_HIGH);
+				moveToPosition(ElevatorConstants.ALGAE_HIGH);
 				break;
 			case ELEVATOR_HOME_POSITION:
-				io.setElevatorPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
+				moveToPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
 				break;
 		}
+	}
 
-		Logger.recordOutput("elevator/currentPosition", inputs.position);
-		Logger.recordOutput("elevator/state", state);
-		Logger.recordOutput("elevator/targetPosition", targetPosition);
+	private void moveToPosition(double targetPosition) {
+		io.setElevatorPosition(targetPosition);
 	}
 
 	public enum ElevatorState {
@@ -68,14 +99,6 @@ public class Elevator extends SubsystemBase {
 		return Commands.runOnce(() -> targetPosition = pos);
 	}
 
-	public Command runUp() {
-		return Commands.runEnd(() -> io.runManualUp(), () -> io.stop());
-	}
-
-	public Command runDown() {
-		return Commands.runEnd(() -> io.runManualDown(), () -> io.stop());
-	}
-
 	public Command stop() {
 		return Commands.runEnd(() -> io.stop(), () -> io.stop());
 	}
@@ -84,12 +107,30 @@ public class Elevator extends SubsystemBase {
 		return targetPosition;
 	}
 
-	public ElevatorState getState() {
-		return state;
+	public Command setAutoScore(ElevatorState m_state) {
+		return Commands.runOnce(() -> autoScore = m_state);
 	}
 
-	public double getTargetPosition() {
-		return targetPosition;
+	public Command autoScore() {
+		return Commands.runOnce(() -> this.state = autoScore);
 	}
+}
 
+/*
+ * FALLBACK STUB
+ *
+ * This class exists only so the code compiles when the AdvantageKit annotation
+ * processor hasn't generated ElevatorIOInputsAutoLogged. Put this file in the
+ * same package as your other IO classes (it already is), and remove this stub
+ * as soon as you've installed AdvantageKit and have the generated class.
+ *
+ * Typical generated class contains simple public fields only (position, etc).
+ * Add more fields here if your code accesses them elsewhere.
+ */
+class ElevatorIOInputsAutoLogged {
+	// example field used by this subsystem
+	public double position = 0.0;
+
+	// If your project uses toLog/fromLog hooks (generated by AdvantageKit),
+	// they won't be present here — the real generated class will provide them.
 }

@@ -2,8 +2,6 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
-
 public interface ElevatorIO {
 
 	@AutoLog
@@ -11,7 +9,7 @@ public interface ElevatorIO {
 		public double position = 0.0;
 	}
 
-	public default void updateInputs(ElevatorIOInputs inputs) {
+	public default void updateInputs(ElevatorIOInputsAutoLogged inputs) {
 	}
 
 	public default void setElevatorPosition(double wantedPosition) {
@@ -24,5 +22,8 @@ public interface ElevatorIO {
 	}
 
 	public default void stop() {
+	}
+
+	public default void reset() {
 	}
 }
