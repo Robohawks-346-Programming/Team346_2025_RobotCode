@@ -22,11 +22,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import org.littletonrobotics.junction.Logger;
 
 public class Module {
 	private final ModuleIO io;
-	private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
+	private final ModuleIO.ModuleIOInputs inputs = new ModuleIO.ModuleIOInputs();
 	private final int index;
 	private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 

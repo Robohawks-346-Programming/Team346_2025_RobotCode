@@ -196,7 +196,7 @@ public class VisionLocalizer extends SubsystemBase {
 				// single tag
 				|| Math.abs(observation.pose().getZ()) > 1.0 // Must have realistic Z coordinate
 				|| observation.averageTagDistance() > 10
-				|| observation.ambiguity() > 0.16
+				|| observation.ambiguity() > 0.18
 				// Must be within the field boundaries
 				|| observation.pose().getX() < 0.0
 				|| observation.pose().getX() > VisionConstants.aprilTagLayout.getFieldLength()

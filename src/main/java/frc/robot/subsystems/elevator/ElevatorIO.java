@@ -9,7 +9,7 @@ public interface ElevatorIO {
 		public double position = 0.0;
 	}
 
-	public default void updateInputs(ElevatorIOInputs inputs) {
+	public default void updateInputs(ElevatorIOInputsAutoLogged inputs) {
 	}
 
 	public default void setElevatorPosition(double wantedPosition) {
@@ -22,5 +22,8 @@ public interface ElevatorIO {
 	}
 
 	public default void stop() {
+	}
+
+	public default void reset() {
 	}
 }
