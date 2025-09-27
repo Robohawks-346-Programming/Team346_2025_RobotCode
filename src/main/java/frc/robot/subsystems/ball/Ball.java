@@ -1,13 +1,14 @@
 package frc.robot.subsystems.ball;
 
 import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Ball extends SubsystemBase {
 	private final BallIO io;
-	private BallIOInputsAutoLogged inputs = new BallIOInputsAutoLogged();
+	private BallIO.BallIOInputsAutoLogged inputs = new BallIO.BallIOInputsAutoLogged();
 	private BallState state = BallState.IDLE;
 
 	public Ball(BallIO io) {

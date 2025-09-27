@@ -9,7 +9,7 @@ public interface BallIO {
 		public double rightMotorSpeed = 0.0;
 	}
 
-	public default void updateInputs(BallIOInputs inputs) {
+	public default void updateInputs(BallIOInputsAutoLogged inputs) {
 	}
 
 	public default void intake() {

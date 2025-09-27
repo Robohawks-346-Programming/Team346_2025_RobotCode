@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 // Note: removed org.littletonrobotics.junction.Logger import to avoid compile errors
 // if AdvantageKit (and its annotation processor) isn't installed.
 
@@ -34,18 +37,11 @@ public class Elevator extends SubsystemBase {
 		// update inputs from hardware/io layer
 		io.updateInputs(inputs);
 
-		// --- TEMPORARY: replaced AdvantageKit logging with SmartDashboard calls so
-		// file compiles ---
-		// If you have AdvantageKit installed and the generated Inputs class available,
-		// replace the SmartDashboard lines below with:
-		// Logger.processInputs("elevator", inputs);
-		// Logger.recordOutput("elevator/currentPosition", inputs.position);
-		// Logger.recordOutput("elevator/state", state);
-		// Logger.recordOutput("elevator/targetPosition", targetPosition);
-		// Logger.recordOutput("elevator/autoScoreState", autoScore);
-		//
-		// and re-add the import:
-		// import org.littletonrobotics.junction.Logger;
+		Logger.processInputs("elevator", (LoggableInputs) inputs);
+		Logger.recordOutput("elevator/currentPosition", inputs.position);
+		Logger.recordOutput("elevator/state", state);
+		Logger.recordOutput("elevator/targetPosition", targetPosition);
+		Logger.recordOutput("elevator/autoScoreState", autoScore);
 
 		SmartDashboard.putNumber("elevator/currentPosition", inputs.position);
 		SmartDashboard.putString("elevator/state", state.toString());
@@ -66,12 +62,6 @@ public class Elevator extends SubsystemBase {
 				break;
 			case LEVEL_4_POSITION:
 				moveToPosition(ElevatorConstants.LEVEL_4_POSITION);
-				break;
-			case ALGAE_LOW:
-				moveToPosition(ElevatorConstants.ALGAE_LOW);
-				break;
-			case ALGAE_HIGH:
-				moveToPosition(ElevatorConstants.ALGAE_HIGH);
 				break;
 			case ELEVATOR_HOME_POSITION:
 				moveToPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);

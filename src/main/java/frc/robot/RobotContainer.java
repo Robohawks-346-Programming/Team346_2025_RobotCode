@@ -10,8 +10,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-<<<<<<< HEAD
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;<<<<<<<HEAD
 import frc.robot.commands.*;
 // import frc.robot.subsystems.Pivot.Pivot;
 // import frc.robot.subsystems.Pivot.PivotConstants;
@@ -26,8 +25,7 @@ import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.intake.Intake.IntakeState;
 // import frc.robot.subsystems.pivot.*;
 // import frc.robot.subsystems.pivot.Pivot.PivotState;
-import frc.robot.subsystems.vision.*;
-=======
+import frc.robot.subsystems.vision.*;=======
 import frc.robot.commands.AkitDriveCommands;
 
 import frc.robot.subsystems.drive.Drive;
@@ -53,21 +51,18 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
-import frc.robot.subsystems.vision.VisionLocalizer;
->>>>>>> Rebuild
+import frc.robot.subsystems.vision.VisionLocalizer;>>>>>>>Rebuild
 
 public class RobotContainer {
 	private final Drive drive;
 	// private final Climb climb;
-	private final Elevator elevator;
-<<<<<<< HEAD
+	private final Elevator elevator;<<<<<<<HEAD
 	private final Intake intake;
 	// private final Pivot pivot;
-=======
+	=======
 	// private final Coral coral;
 	private final Ball ball;
-	private final VisionColor visionColor;
->>>>>>> Rebuild
+	private final VisionColor visionColor;>>>>>>>Rebuild
 	private final VisionLocalizer vision;
 	// private final BranchLevelSelector branchLevelSelector;
 
@@ -469,91 +464,82 @@ public class RobotContainer {
 		intake.setState(IntakeState.IDLE);
 		// pivot.setTargetPos(PivotConstants.POSITION_1);
 	}
+}=======elevator.setAutoScore(ElevatorState.LEVEL_4_POSITION),Commands.waitSeconds(0.5),elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
+
+// controller.leftTrigger().onTrue(
+// Commands.sequence(
+// new ReefBranchAlignFast(drive,
+// new Transform2d(Units.inchesToMeters(-40), Units.inchesToMeters(4),
+// new Rotation2d(Math.PI)),
+// () -> controller.getLeftY()),
+// elevator.autoScore(),
+// new ReefBranchAlignSlow(drive,
+// new Transform2d(Units.inchesToMeters(-16), Units.inchesToMeters(4),
+// new Rotation2d(Math.PI)),
+// () -> controller.getLeftY()),
+// coral.setState(CoralState.EJECT_CORAL),
+// Commands.waitSeconds(0.6),
+// elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION),
+// coral.setState(CoralState.INTAKE_CORAL)));
+
+// controller.rightBumper().onTrue(
+// Commands.sequence(
+// new ReefBranchAlignFast(drive,
+// new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(0),
+// new Rotation2d(Math.PI)),
+// () -> controller.getLeftY()),
+// Commands.waitSeconds(0.5),
+// new AutoAlgaeAlign(drive, elevator, new Transform2d()),
+// algae.setState(AlgaeState.REEF_CLEAR),
+// new ReefBranchAlignSlow(drive,
+// new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(0),
+// new Rotation2d(Math.PI)),
+// () -> controller.getLeftY()),
+// new AlgaeIntake(algae),
+// new ReefBranchAlignSlow(drive,
+// new Transform2d(Units.inchesToMeters(-40), Units.inchesToMeters(0), // Backup
+// before
+// // bringing algae
+// // down
+// new Rotation2d(Math.PI)),
+// () -> controller.getLeftY()),
+// elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
+
+// controller.leftBumper().onTrue(
+// AkitDriveCommands.joystickDrive(
+// drive,
+// () -> -controller.getLeftY(),
+// () -> -controller.getLeftX(),
+// () -> -controller.getRightX()));
+
+controller2.x().onTrue(elevator.setAutoScore(ElevatorState.LEVEL_1_POSITION));
+
+controller2.y().onTrue(elevator.setAutoScore(ElevatorState.LEVEL_2_POSITION));
+
+controller2.b().onTrue(elevator.setAutoScore(ElevatorState.LEVEL_3_POSITION));
+
+controller2.a().onTrue(elevator.setAutoScore(ElevatorState.LEVEL_4_POSITION));
+
+// controller2 climb/algae bindings removed
+
+// Algae controls on Xbox controller
+// controller algae bindings removed
+
+// Bind new color-based routine to X
+controller.x().onTrue(new ColorIntakeAndScore(ball,elevator,visionColor));
+
+// Auto algae score on Xbox controller
+// controller.y().onTrue(new AutoAlgaeScore(drive, elevator, algae,
+// new Pose2d(0, 0, new Rotation2d(0)))); // Placeholder coordinates
+
+// controller.leftBumper().onTrue(Commands.runOnce(() ->
+// branchLevelSelector.incrementBranch()));
+// controller.leftTrigger().onTrue(Commands.runOnce(() ->
+// branchLevelSelector.incrementLevel()));
+// controller.rightBumper().onTrue(branchLevelSelector.getScoreCommand());
 }
-=======
-						elevator.setAutoScore(ElevatorState.LEVEL_4_POSITION),
-						Commands.waitSeconds(0.5),
-						elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
 
-		// controller.leftTrigger().onTrue(
-		// Commands.sequence(
-		// new ReefBranchAlignFast(drive,
-		// new Transform2d(Units.inchesToMeters(-40), Units.inchesToMeters(4),
-		// new Rotation2d(Math.PI)),
-		// () -> controller.getLeftY()),
-		// elevator.autoScore(),
-		// new ReefBranchAlignSlow(drive,
-		// new Transform2d(Units.inchesToMeters(-16), Units.inchesToMeters(4),
-		// new Rotation2d(Math.PI)),
-		// () -> controller.getLeftY()),
-		// coral.setState(CoralState.EJECT_CORAL),
-		// Commands.waitSeconds(0.6),
-		// elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION),
-		// coral.setState(CoralState.INTAKE_CORAL)));
-
-		// controller.rightBumper().onTrue(
-		// Commands.sequence(
-		// new ReefBranchAlignFast(drive,
-		// new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(0),
-		// new Rotation2d(Math.PI)),
-		// () -> controller.getLeftY()),
-		// Commands.waitSeconds(0.5),
-		// new AutoAlgaeAlign(drive, elevator, new Transform2d()),
-		// algae.setState(AlgaeState.REEF_CLEAR),
-		// new ReefBranchAlignSlow(drive,
-		// new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(0),
-		// new Rotation2d(Math.PI)),
-		// () -> controller.getLeftY()),
-		// new AlgaeIntake(algae),
-		// new ReefBranchAlignSlow(drive,
-		// new Transform2d(Units.inchesToMeters(-40), Units.inchesToMeters(0), // Backup
-		// before
-		// // bringing algae
-		// // down
-		// new Rotation2d(Math.PI)),
-		// () -> controller.getLeftY()),
-		// elevator.setState(ElevatorState.ELEVATOR_HOME_POSITION)));
-
-		// controller.leftBumper().onTrue(
-		// AkitDriveCommands.joystickDrive(
-		// drive,
-		// () -> -controller.getLeftY(),
-		// () -> -controller.getLeftX(),
-		// () -> -controller.getRightX()));
-
-		controller2.x().onTrue(
-				elevator.setAutoScore(ElevatorState.LEVEL_1_POSITION));
-
-		controller2.y().onTrue(
-				elevator.setAutoScore(ElevatorState.LEVEL_2_POSITION));
-
-		controller2.b().onTrue(
-				elevator.setAutoScore(ElevatorState.LEVEL_3_POSITION));
-
-		controller2.a().onTrue(
-				elevator.setAutoScore(ElevatorState.LEVEL_4_POSITION));
-
-		// controller2 climb/algae bindings removed
-
-		// Algae controls on Xbox controller
-		// controller algae bindings removed
-
-		// Bind new color-based routine to X
-		controller.x().onTrue(new ColorIntakeAndScore(ball, elevator, visionColor));
-
-		// Auto algae score on Xbox controller
-		// controller.y().onTrue(new AutoAlgaeScore(drive, elevator, algae,
-		// new Pose2d(0, 0, new Rotation2d(0)))); // Placeholder coordinates
-
-		// controller.leftBumper().onTrue(Commands.runOnce(() ->
-		// branchLevelSelector.incrementBranch()));
-		// controller.leftTrigger().onTrue(Commands.runOnce(() ->
-		// branchLevelSelector.incrementLevel()));
-		// controller.rightBumper().onTrue(branchLevelSelector.getScoreCommand());
-	}
-
-	// public Command getAutonomousCommand() {
-	// return autoChooser.get();
-	// }
-}
->>>>>>> Rebuild
+// public Command getAutonomousCommand() {
+// return autoChooser.get();
+// }
+}>>>>>>>Rebuild
